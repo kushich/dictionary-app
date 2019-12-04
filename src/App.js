@@ -18,7 +18,6 @@ const App = () => {
     const [query, setQuery] = useState('');
     const [request, setRequest] = useState('');
     const [lang, setLang] = useState('en-ru');
-
     useEffect(() => {
         const fetchData = async () => {
             const result = await axios(`https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${API}&lang=${lang}&text=${request}`);
@@ -30,59 +29,71 @@ const App = () => {
     const handleSubmit = (e) => {
         setRequest(query);
         e.preventDefault();
-    }
-
+    };
     return <div>
         <Container>
-        <Form onSubmit={handleSubmit} >
-            <Form.Group controlId="formBasicEmail">
-                <Row>
-                    <Col xl={1}>
-                <DropdownButton variant="drop" title={lang}>
-                    <Dropdown.Item onClick={() => setLang("en-ru")}>EN to RU</Dropdown.Item>
-                    <Dropdown.Item onClick={() => setLang("ru-en")}>RU to EN</Dropdown.Item>
-                </DropdownButton>
-                </Col>
-                    <Col xl={11}>
-                <Form.Control type="text"
-                              value={query}
-                              onChange={event => setQuery(event.target.value)}
-                              placeholder="Enter a word" />
+            <div className="mainBody">
+                <Form onSubmit={handleSubmit} >
+                <Form.Group controlId="formWord">
+                    <Row>
+                        <Col xl={1}>
+                            <DropdownButton id="lang" variant="drop" title={lang}>
+                                <Dropdown.Item onClick={() => setLang("en-ru")}>С английского на русский</Dropdown.Item>
+                                <Dropdown.Item onClick={() => setLang("ru-en")}>С русского на английский</Dropdown.Item>
+                            </DropdownButton>
+                        </Col>
+                        <Col xl={11}>
+                            <Form.Control type="text"
+                                          className="input"
+                                          value={query}
+                                          onChange={event => setQuery(event.target.value)}
+                                          placeholder="Введите слово" />
+                        </Col>
+                    </Row>
+                </Form.Group>
+                <Row className="submitButton">
+                    <Col xl={12}>
+                        <Button variant="submit" type="submit">
+                            Перевести
+                        </Button>
                     </Col>
                 </Row>
-            </Form.Group>
-            <Row className="submitButton">
+            </Form>
+            </div>
+
+            <Tabs id="results" className="tabs">
+                {data.map(w => <Tab className="tab" eventKey={w.pos} title={w.pos}>
+                    <Row>
+                        <Col>
+                            <h3>Перевод</h3>
+                            {w.tr.map(t => <div>{t.text}</div>)}
+                        </Col>
+                        <Col>
+                            <h3>Примеры</h3>
+                            {w.tr.map(t => {
+                                if (t.ex) {
+                                    return <div>{t.ex.map(e => <div>{`${e.text}`}</div>)}</div>
+                                } else return ""})}
+                        </Col>
+                        <Col>
+                            <h3>Синонимы</h3>
+                            {w.tr.map(t => {
+                                if (t.syn) {
+                                    return <div>{t.syn.map(e => <div>{`${e.text}`}</div>)}</div>
+                                } else return ""})}
+                        </Col>
+                    </Row>
+                </Tab>)
+                }
+            </Tabs>
+            <Row className="rowFooter">
                 <Col xl={12}>
-            <Button variant="submit" type="submit">
-                Submit
-            </Button>
+                    <footer className="footer">
+                        <a className="footerText" href="https://tech.yandex.ru/dictionary">«Реализовано с помощью сервиса «Яндекс.Словарь»</a>
+                    </footer>
                 </Col>
             </Row>
-        </Form>
-
-            <Tabs className="tabs">
-            {data.map(w => <Tab eventKey={w.pos} title={w.pos}>
-                <Row>
-                    <Col>
-                        <h3>Translation</h3>
-                        {w.tr.map(t => <div>{t.text}</div>)}
-                    </Col>
-                    <Col>
-                        <h3>Examples</h3>
-                        {w.tr.map(t => {
-                            if (t.ex) {
-                            return <div>{t.ex.map(e => <div>{`${e.text}`}</div>)}</div>
-                            } else return ""})}
-                    </Col>
-                </Row>
-                </Tab>)
-            }
-            </Tabs>
-
-
-
-
-</Container>
+        </Container>
     </div>
 }
 
